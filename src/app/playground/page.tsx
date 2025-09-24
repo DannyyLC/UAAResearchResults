@@ -211,7 +211,7 @@ export default function Playground() {
     router.push("/");
   };
 
-  const renderCustomLabel = (props) => {
+  const renderCustomLabel = (props: any) => {
     const { x, y, width, value } = props;
     return (
       <text x={x + width / 2} y={y - 5} fill="#ffffff" textAnchor="middle" fontSize="10" fontWeight="bold">
@@ -220,7 +220,7 @@ export default function Playground() {
     );
   };
 
-  const toggleSection = (section) => {
+  const toggleSection = (section: any) => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
