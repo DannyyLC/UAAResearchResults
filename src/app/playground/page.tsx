@@ -1,5 +1,5 @@
-"use client"
-import React, { useState } from "react";
+"use client";
+import React, { JSX, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -25,9 +25,42 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+// Interfaces de TypeScript
+interface ModelArea {
+  pregunta: string;
+  puntuacion: number;
+  tiempo: number;
+}
+
+interface ModelStats {
+  min: number;
+  max: number;
+  avg: number;
+  median: number;
+  range: number;
+  std: number;
+}
+
+interface CompleteModelData {
+  name: string;
+  type: 'ollama' | 'sistema';
+  similarity: ModelStats;
+  time: ModelStats;
+  color: string;
+  efficiency: number;
+  areas: ModelArea[];
+}
+
+interface CustomLabelProps {
+  x?: string | number;
+  y?: string | number;
+  width?: string | number;
+  value?: string | number;
+}
+
 export default function Playground() {
   const router = useRouter();
-  const [expandedSection, setExpandedSection] = useState(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   const scrollbarStyles = `
     .custom-scrollbar::-webkit-scrollbar {
@@ -50,7 +83,7 @@ export default function Playground() {
   `;
 
   // Estadísticas completas por modelo
-  const completeStats = {
+  const completeStats: Record<string, CompleteModelData> = {
     "ollama_mistral": {
       name: "Ollama Mistral",
       type: "ollama",
@@ -207,20 +240,39 @@ export default function Playground() {
     type: model.type
   }));
 
-  const handleBackClick = () => {
+  const handleBackClick = (): void => {
     router.push("/");
   };
 
-  const renderCustomLabel = (props: any) => {
+  const renderCustomLabel = (props: CustomLabelProps): JSX.Element | null => {
     const { x, y, width, value } = props;
+    
+    if (x === undefined || y === undefined || width === undefined || value === undefined) return null;
+    
+    // Convertir los valores a números
+    const xNum = typeof x === 'string' ? parseFloat(x) : x;
+    const yNum = typeof y === 'string' ? parseFloat(y) : y;
+    const widthNum = typeof width === 'string' ? parseFloat(width) : width;
+    const valueNum = typeof value === 'string' ? parseFloat(value) : value;
+    
+    // Verificar que la conversión fue exitosa
+    if (isNaN(xNum) || isNaN(yNum) || isNaN(widthNum) || isNaN(valueNum)) return null;
+    
     return (
-      <text x={x + width / 2} y={y - 5} fill="#ffffff" textAnchor="middle" fontSize="10" fontWeight="bold">
-        {value}%
+      <text 
+        x={xNum + widthNum / 2} 
+        y={yNum - 5} 
+        fill="#ffffff" 
+        textAnchor="middle" 
+        fontSize="10" 
+        fontWeight="bold"
+      >
+        {Math.round(valueNum)}%
       </text>
     );
   };
 
-  const toggleSection = (section: any) => {
+  const toggleSection = (section: string): void => {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
@@ -466,7 +518,7 @@ export default function Playground() {
                       </tr>
                     </thead>
                     <tbody>
-                      {models.map((model, index) => (
+                      {models.map((model) => (
                         <tr key={model.name} className={`border-b border-white/10 ${
                           model.type === 'sistema' ? 'bg-green-900/10' : 'bg-red-900/10'
                         }`}>
@@ -505,7 +557,7 @@ export default function Playground() {
                 Mejoras de Sistema vs Foundation
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {improvements.map((item, index) => (
+                {improvements.map((item) => (
                   <div key={item.model} className="bg-black/50 border border-white/20 rounded-lg p-6 text-center">
                     <h3 className="text-lg font-semibold mb-3 text-white">{item.model}</h3>
                     <div className="space-y-3">
@@ -626,7 +678,7 @@ export default function Playground() {
                               <p className="font-semibold text-white mb-1">{label}</p>
                               {payload.map((item, index) => (
                                 <p key={index} style={{ color: item.color }}>
-                                  {item.name}: {item.value.toFixed(1)}
+                                  {item.name}: {item.value?.toFixed(1)}
                                 </p>
                               ))}
                             </div>
@@ -646,7 +698,7 @@ export default function Playground() {
 
           {/* Individual Model Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {Object.values(completeStats).map((model, index) => (
+            {Object.values(completeStats).map((model) => (
               <div key={model.name} className={`border rounded-xl p-6 ${
                 model.type === 'sistema' 
                   ? 'bg-green-900/10 border-green-500/30' 
@@ -703,7 +755,7 @@ export default function Playground() {
                           borderRadius: '8px',
                           color: '#fff'
                         }}
-                        formatter={(value, name) => [
+                        formatter={(value: number, name: string) => [
                           name === 'puntuacion' ? `${value}%` : `${value}s`,
                           name === 'puntuacion' ? 'Similitud' : 'Tiempo'
                         ]}
