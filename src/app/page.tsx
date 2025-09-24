@@ -90,7 +90,7 @@ export default function ChatApp() {
                   onClick={handlePlaygroundClick}
                 >
                   <BarChart3 className="w-4 h-4" />
-                  <span>Playground</span>
+                  <span>Analitycs</span>
                 </button>
               </div>
               
@@ -130,7 +130,7 @@ export default function ChatApp() {
                   }}
                 >
                   <BarChart3 className="w-5 h-5" />
-                  <span>Playground</span>
+                  <span>Analitycs</span>
                 </button>
               </div>
             </div>
