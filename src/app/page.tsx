@@ -62,7 +62,7 @@ export default function ChatApp() {
       
       // Reiniciar ChromaDB solo cuando se confirma la especialidad
       try {
-        await fetch('http://74.208.211.147:8000/reiniciar', {
+        await fetch('https://desarrollo.softweb.mx/api/reiniciar', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ export default function ChatApp() {
     formData.append('collection', specialty);
 
     try {
-      const response = await fetch('http://74.208.211.147:8000/index', {
+      const response = await fetch('https://desarrollo.softweb.mx/api/index', {
         method: 'POST',
         body: formData
       });
@@ -144,7 +144,7 @@ export default function ChatApp() {
     }
 
     try {
-      const response = await fetch('http://74.208.211.147:8000/query', {
+      const response = await fetch('https://desarrollo.softweb.mx/api/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
