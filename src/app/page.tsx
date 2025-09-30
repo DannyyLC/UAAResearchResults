@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useRef } from 'react';
-import { MessageCircle, Send, Upload, FileText, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { MessageCircle, Send, Upload, FileText, Loader2, CheckCircle, AlertCircle, BarChart3 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function ChatApp() {
   const [message, setMessage] = useState('');
@@ -18,6 +19,7 @@ export default function ChatApp() {
   });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   // Estilos del scrollbar
   const scrollbarStyles = `
@@ -281,6 +283,15 @@ export default function ChatApp() {
                 <h2 className="text-xl font-semibold text-white">UUA RAG System</h2>
                 <p className="text-sm text-gray-400">Compara respuestas de múltiples modelos</p>
               </div>
+              
+              <button
+                className="px-4 py-2 bg-black rounded-lg border border-white hover:bg-zinc-900 transition-colors flex items-center gap-2"
+                onClick={() => router.push('/analitycs')}
+              >
+                <BarChart3 className="w-4 h-4 text-white" />
+                <span className="text-white text-sm font-medium">Analytics</span>
+              </button>
+
               <div className="flex items-center gap-2">
                 <div className="px-3 py-1 bg-zinc-900 rounded-lg border border-white/20">
                   <span className="text-xs text-gray-400">Especialidad: </span>
