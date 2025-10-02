@@ -1,7 +1,6 @@
 "use client"
 import React, { useState, useRef } from 'react';
-import { MessageCircle, Send, Upload, FileText, Loader2, CheckCircle, AlertCircle, BarChart3 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { MessageCircle, Send, Upload, FileText, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function ChatApp() {
   const [message, setMessage] = useState('');
@@ -23,7 +22,6 @@ export default function ChatApp() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const answerTextareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   // Estilos del scrollbar
   const scrollbarStyles = `
@@ -97,11 +95,11 @@ export default function ChatApp() {
     if (!file) return;
 
     // Validar tipo de archivo
-    const validTypes = ['.txt', '.pdf'];
+    const validTypes = ['.txt', '.pdf', '.docx', '.doc'];
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
     
     if (!validTypes.includes(fileExtension)) {
-      alert('Por favor sube solo archivos .txt o .pdf');
+      alert('Por favor sube solo archivos .txt o .pdf .docx .doc');
       return;
     }
 
@@ -241,16 +239,36 @@ export default function ChatApp() {
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
           <div className="bg-zinc-900 border-2 border-white rounded-xl p-6 max-w-md w-full">
             <h2 className="text-xl font-semibold text-white mb-4">Bienvenido al Sistema RAG UUA</h2>
-            <p className="text-gray-400 mb-4">Por favor, ingresa tu especialidad para comenzar:</p>
+            
+            <p className="text-gray-300 mb-3">
+              Por favor, ingresa tu especialidad de manera <span className="font-semibold text-white">específica</span>:
+            </p>
+            
+            <div className="bg-zinc-950 border border-white/20 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-400 mb-2">Ejemplos:</p>
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>✓ Cardiología (en lugar de "Medicina")</li>
+                <li>✓ Derecho Penal (en lugar de "Derecho")</li>
+                <li>✓ Ingeniería Civil (en lugar de "Ingeniería")</li>
+              </ul>
+            </div>
+            
             <input
               type="text"
               value={specialty}
               onChange={(e) => setSpecialty(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSpecialtySubmit()}
-              placeholder="Ej: Ingeniería, Medicina, Derecho..."
+              placeholder="Ej: Cardiología, Derecho Penal, Ingeniería Civil..."
               className="w-full px-4 py-2 bg-black border border-white rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 mb-4"
               autoFocus
             />
+            
+            <div className="bg-zinc-950 border border-white/30 rounded-lg p-3 mb-4">
+              <p className="text-xs text-gray-400 leading-relaxed">
+                <span className="font-semibold text-white">Aviso de Privacidad:</span> La información recabada es 100% anónima y solo será utilizada con fines de investigación académica.
+              </p>
+            </div>
+            
             <button
               onClick={handleSpecialtySubmit}
               disabled={!specialty.trim()}
@@ -266,21 +284,21 @@ export default function ChatApp() {
       {showAnswerModal && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
           <div className="bg-zinc-900 border-2 border-white rounded-xl p-6 max-w-2xl w-full">
-            <h2 className="text-xl font-semibold text-white mb-4">Respuesta del Profesional</h2>
-            
-            <div className="mb-4 p-3 bg-zinc-950 border border-white/20 rounded-lg">
-              <p className="text-sm text-gray-400 mb-1">Pregunta:</p>
-              <p className="text-white">{pendingQuestion}</p>
+            <div className="mb-4 p-4 bg-zinc-950 border border-white/20 rounded-lg">
+              <p className="text-sm text-gray-400 mb-2">Pregunta:</p>
+              <p className="text-white text-lg">{pendingQuestion}</p>
             </div>
 
-            <p className="text-gray-400 mb-3">Por favor, proporciona tu respuesta como profesional antes de continuar:</p>
+            <p className="text-gray-300 mb-3">
+              Como especialista en <span className="font-semibold text-white">{specialty}</span>, por favor escriba su respuesta a la pregunta anterior:
+            </p>
             
             <textarea
               ref={answerTextareaRef}
               value={professionalAnswer}
               onChange={handleAnswerTextareaChange}
               onKeyPress={handleAnswerKeyPress}
-              placeholder="Escribe tu respuesta profesional aquí..."
+              placeholder="Escriba su respuesta profesional aquí..."
               className="w-full resize-none border border-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white bg-black text-white placeholder-gray-400 min-h-[100px] max-h-[200px] custom-scrollbar mb-4"
               style={{ height: '100px' }}
               autoFocus
@@ -324,7 +342,7 @@ export default function ChatApp() {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".txt,.pdf"
+              accept=".txt,.pdf,.docx,.doc"
               onChange={handleFileUpload}
               className="hidden"
               id="file-upload"
@@ -344,7 +362,8 @@ export default function ChatApp() {
               )}
               <span>{isUploading ? 'Subiendo...' : 'Subir Archivo'}</span>
             </label>
-            <p className="text-xs text-gray-500 mt-2">Formatos: .txt, .pdf</p>
+            <p className="text-xs text-gray-500 mt-2">Formatos: .txt, .pdf, .docx, .doc</p>
+            <p className="text-xs text-gray-400 mt-1">Puedes subir todos los archivos que necesites</p>
           </div>
 
           <div className="flex-1 overflow-hidden">
@@ -373,19 +392,15 @@ export default function ChatApp() {
                 <h2 className="text-xl font-semibold text-white">UUA RAG System</h2>
                 <p className="text-sm text-gray-400">Compara respuestas de múltiples modelos</p>
               </div>
-              
-              <button
-                className="px-4 py-2 bg-black rounded-lg border border-white hover:bg-zinc-900 transition-colors flex items-center gap-2"
-                onClick={() => router.push('/analitycs')}
-              >
-                <BarChart3 className="w-4 h-4 text-white" />
-                <span className="text-white text-sm font-medium">Analytics</span>
-              </button>
 
-              <div className="flex items-center gap-2">
-                <div className="px-3 py-1 bg-zinc-900 rounded-lg border border-white/20">
-                  <span className="text-xs text-gray-400">Especialidad: </span>
-                  <span className="text-sm text-white font-medium">{specialty}</span>
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <p className="text-xs text-gray-400 mb-1">Tu Especialidad:</p>
+                  <p className="text-2xl font-bold text-white">{specialty}</p>
+                </div>
+                
+                <div className="border-l border-white/20 pl-4">
+                  <p className="text-xs text-yellow-400">⚠️ Si recarga la página se perderá toda la información</p>
                 </div>
               </div>
             </div>
