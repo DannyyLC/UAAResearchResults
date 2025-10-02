@@ -7,6 +7,9 @@ export default function ChatApp() {
   const [message, setMessage] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [showSpecialtyModal, setShowSpecialtyModal] = useState(true);
+  const [showAnswerModal, setShowAnswerModal] = useState(false);
+  const [professionalAnswer, setProfessionalAnswer] = useState('');
+  const [pendingQuestion, setPendingQuestion] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -18,6 +21,7 @@ export default function ChatApp() {
     'llama3.1:8b': ''
   });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const answerTextareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -52,6 +56,18 @@ export default function ChatApp() {
       const scrollHeight = textareaRef.current.scrollHeight;
       const maxHeight = 200;
       textareaRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+    }
+  };
+
+  // Manejar cambio en textarea de respuesta profesional
+  const handleAnswerTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setProfessionalAnswer(e.target.value);
+    
+    if (answerTextareaRef.current) {
+      answerTextareaRef.current.style.height = 'auto';
+      const scrollHeight = answerTextareaRef.current.scrollHeight;
+      const maxHeight = 200;
+      answerTextareaRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
     }
   };
 
@@ -122,13 +138,28 @@ export default function ChatApp() {
     }
   };
 
-  // Enviar pregunta
-  const handleSendMessage = async () => {
+  // Abrir modal para pedir respuesta del profesional
+  const handleSendMessage = () => {
     if (!message.trim()) return;
 
     const question = message.trim();
-    setCurrentQuestion(question);
+    setPendingQuestion(question);
     setMessage('');
+    setProfessionalAnswer('');
+    setShowAnswerModal(true);
+    
+    // Resetear altura del textarea de pregunta
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '50px';
+    }
+  };
+
+  // Enviar pregunta con respuesta del profesional al backend
+  const handleSubmitWithAnswer = async () => {
+    if (!professionalAnswer.trim()) return;
+
+    setShowAnswerModal(false);
+    setCurrentQuestion(pendingQuestion);
     setIsLoading(true);
     
     // Resetear respuestas
@@ -138,11 +169,6 @@ export default function ChatApp() {
       'llama3.1:8b': ''
     });
 
-    // Resetear altura del textarea
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '50px';
-    }
-
     try {
       const response = await fetch('https://desarrollo.softweb.mx/api/query', {
         method: 'POST',
@@ -150,8 +176,9 @@ export default function ChatApp() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          query: question,
-          answer: ""
+          query: pendingQuestion,
+          answer: professionalAnswer.trim(),
+          especialidad: specialty
         })
       });
 
@@ -179,6 +206,8 @@ export default function ChatApp() {
       });
     } finally {
       setIsLoading(false);
+      setPendingQuestion('');
+      setProfessionalAnswer('');
     }
   };
 
@@ -187,6 +216,20 @@ export default function ChatApp() {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleAnswerKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmitWithAnswer();
+    }
+  };
+
+  const handleCancelAnswer = () => {
+    setShowAnswerModal(false);
+    setMessage(pendingQuestion);
+    setPendingQuestion('');
+    setProfessionalAnswer('');
   };
 
   return (
@@ -215,6 +258,53 @@ export default function ChatApp() {
             >
               Continuar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Respuesta del Profesional */}
+      {showAnswerModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border-2 border-white rounded-xl p-6 max-w-2xl w-full">
+            <h2 className="text-xl font-semibold text-white mb-4">Respuesta del Profesional</h2>
+            
+            <div className="mb-4 p-3 bg-zinc-950 border border-white/20 rounded-lg">
+              <p className="text-sm text-gray-400 mb-1">Pregunta:</p>
+              <p className="text-white">{pendingQuestion}</p>
+            </div>
+
+            <p className="text-gray-400 mb-3">Por favor, proporciona tu respuesta como profesional antes de continuar:</p>
+            
+            <textarea
+              ref={answerTextareaRef}
+              value={professionalAnswer}
+              onChange={handleAnswerTextareaChange}
+              onKeyPress={handleAnswerKeyPress}
+              placeholder="Escribe tu respuesta profesional aquí..."
+              className="w-full resize-none border border-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white bg-black text-white placeholder-gray-400 min-h-[100px] max-h-[200px] custom-scrollbar mb-4"
+              style={{ height: '100px' }}
+              autoFocus
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancelAnswer}
+                className="flex-1 bg-zinc-800 text-white font-semibold py-2 rounded-lg hover:bg-zinc-700 transition-colors border border-white/20"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSubmitWithAnswer}
+                disabled={!professionalAnswer.trim()}
+                className="flex-1 bg-white text-black font-semibold py-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Enviar Consulta
+              </button>
+            </div>
+            
+            <p className="text-xs text-gray-500 mt-3 text-center">
+              Presiona Enter para enviar, Shift + Enter para nueva línea
+            </p>
           </div>
         </div>
       )}
