@@ -247,9 +247,9 @@ export default function ChatApp() {
             <div className="bg-zinc-950 border border-white/20 rounded-lg p-3 mb-4">
               <p className="text-sm text-gray-400 mb-2">Ejemplos:</p>
               <ul className="text-sm text-gray-300 space-y-1">
-                <li>✓ Cardiología (en lugar de "Medicina")</li>
-                <li>✓ Derecho Penal (en lugar de "Derecho")</li>
-                <li>✓ Ingeniería Civil (en lugar de "Ingeniería")</li>
+                <li>✓ Cardiología (en lugar de Medicina)</li>
+                <li>✓ Derecho Penal (en lugar de Derecho)</li>
+                <li>✓ Ingeniería Civil (en lugar de Ingeniería)</li>
               </ul>
             </div>
             
