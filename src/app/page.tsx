@@ -238,7 +238,7 @@ export default function ChatApp() {
       {showSpecialtyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
           <div className="bg-zinc-900 border-2 border-white rounded-xl p-6 max-w-md w-full">
-            <h2 className="text-xl font-semibold text-white mb-4">Bienvenido al Sistema RAG UUA</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">Bienvenido al Sistema RAG UAA</h2>
             
             <p className="text-gray-300 mb-3">
               Por favor, ingresa tu especialidad de manera <span className="font-semibold text-white">específica</span>:
@@ -389,7 +389,7 @@ export default function ChatApp() {
           <div className="bg-black border-b border-white px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-white">UUA RAG System</h2>
+                <h2 className="text-xl font-semibold text-white">UAA RAG System</h2>
                 <p className="text-sm text-gray-400">Compara respuestas de múltiples modelos</p>
               </div>
 
